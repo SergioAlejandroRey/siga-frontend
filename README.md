@@ -213,15 +213,3 @@ git push -u origin nombre-de-la-rama
 ```
 
 Y abrir un Pull Request hacia `main`.
-
----
-
-## Nota de entrega
-
-La entrega de la evidencia es **únicamente el enlace del repositorio público**:
-
-```text
-https://github.com/SergioAlejandroRey/siga-frontend
-```
-
-No se entrega portada, introducción, PDF, RAR ni ZIP. El instructor clonará el repositorio, ejecutará `npm install` y `npm run dev`, y revisará que los componentes funcionen.
