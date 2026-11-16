@@ -1,30 +1,46 @@
-/**
- * QrPage — pieza pendiente de Veronica.
- *
- * Sin props. Cuando se suba la implementación de la guía, buscará activos por
- * código interno o código QR usando useSiga().
- *
- * Marcador temporal para que la aplicación compile y la ruta /qr responda.
- */
-import Badge from '../components/ui/Badge.jsx';
-import Icon from '../components/common/Icon.jsx';
+import { useState } from 'react';
 
 export default function QrPage() {
+  const [codigo, setCodigo] = useState('');
+  const [activo, setActivo] = useState(null);
+
+  const consultar = () => {
+    if (!codigo.trim()) {
+      alert('Ingresa el código QR o el código interno del activo');
+      return;
+    }
+    // Simulación de la consulta
+    setActivo({
+      codigo: codigo,
+      nombre: 'Activo consultado',
+      estado: 'Disponible',
+      ubicacion: 'Almacén'
+    });
+  };
+
   return (
-    <section className="pending-slot pending-slot--page">
-      <div className="pending-slot__head">
-        <div>
-          <strong>QrPage</strong>
-          <p>Consulta de activos por código QR o código interno.</p>
+    <div style={{maxWidth: '480px', margin: '40px auto', padding: '20px'}}>
+      <h2>Consulta por Código QR / Código Interno</h2>
+      <input
+        type="text"
+        value={codigo}
+        onChange={(e) => setCodigo(e.target.value)}
+        placeholder="Código QR o código interno"
+        style={{width: '100%', padding: '8px', marginBottom: '12px'}}
+      />
+      <button onClick={consultar} style={{width: '100%', padding: '10px'}}>
+        Consultar Activo
+      </button>
+
+      {activo && (
+        <div style={{marginTop: '20px', border: '1px solid #ccc', padding: '16px'}}>
+          <h3>Ficha del Activo</h3>
+          <p><strong>Código:</strong> {activo.codigo}</p>
+          <p><strong>Nombre:</strong> {activo.nombre}</p>
+          <p><strong>Estado:</strong> {activo.estado}</p>
+          <p><strong>Ubicación:</strong> {activo.ubicacion}</p>
         </div>
-        <Badge tone="amber">Pendiente</Badge>
-      </div>
-      <div className="pending-slot__qr">
-        <Icon name="qr" size={64} />
-        <p>
-          La búsqueda por QR se activará cuando se suba este componente.
-        </p>
-      </div>
-    </section>
+      )}
+    </div>
   );
 }
