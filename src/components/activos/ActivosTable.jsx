@@ -1,136 +1,108 @@
-const ACTIVOS_INICIALES = [
-  {
-    codigo: 'ACT-001',
-    nombre: 'Horno Industrial',
-    categoria: 'Cocina',
-    responsable: 'Carlos Mendoza',
-    estado: 'Operativo'
-  },
-  {
-    codigo: 'ACT-002',
-    nombre: 'Licuadora Comercial',
-    categoria: 'Barra',
-    responsable: 'Laura Gómez',
-    estado: 'Mantenimiento'
-  },
-  {
-    codigo: 'ACT-003',
-    nombre: 'Refrigerador Vertical',
-    categoria: 'Refrigeración',
-    responsable: 'Andrés Rojas',
-    estado: 'Operativo'
-  },
-  {
-    codigo: 'ACT-004',
-    nombre: 'Freidora Doble',
-    categoria: 'Cocina',
-    responsable: 'Carlos Mendoza',
-    estado: 'Crítico'
-  }
-];
+import Badge from '../ui/Badge.jsx';
+import Button from '../ui/Button.jsx';
+import Table from '../ui/Table.jsx';
+import Icon from '../common/Icon.jsx';
+import { tonoEstado } from '../../utils/status.js';
 
-function Badge({ estado }) {
-  const estilosPorEstado = {
-    Operativo: { backgroundColor: '#d4edda', color: '#155724' },
-    Mantenimiento: { backgroundColor: '#fff3cd', color: '#856404' },
-    Crítico: { backgroundColor: '#f8d7da', color: '#721c24' },
-    Inactivo: { backgroundColor: '#e2e3e5', color: '#383d41' }
-  };
-
-  const estilo = {
-    padding: '4px 10px',
-    borderRadius: '12px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    display: 'inline-block',
-    ...(estilosPorEstado[estado] || estilosPorEstado.Inactivo)
-  };
-
-  return <span style={estilo}>{estado || 'Sin estado'}</span>;
-}
-
-function Table({ columnas, datos }) {
-  const filas = Array.isArray(datos) ? datos : [];
-
-  return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            {columnas.map((columna) => (
-              <th
-                key={columna}
-                style={{
-                  borderBottom: '2px solid #dee2e6',
-                  padding: '10px',
-                  textAlign: 'left',
-                  color: '#006699',
-                  fontSize: '14px'
-                }}
-              >
-                {columna}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {filas.length === 0 ? (
-            <tr>
-              <td
-                colSpan={columnas.length}
-                style={{
-                  textAlign: 'center',
-                  padding: '16px',
-                  color: '#6c757d',
-                  fontSize: '14px'
-                }}
-              >
-                No hay activos para mostrar.
-              </td>
-            </tr>
-          ) : (
-            filas.map((activo, index) => (
-              <tr
-                key={activo.codigo || index}
-                style={{ borderBottom: '1px solid #dee2e6', fontSize: '14px' }}
-              >
-                <td style={{ padding: '10px' }}>
-                  <strong>{activo.codigo}</strong>
-                </td>
-                <td style={{ padding: '10px' }}>{activo.nombre}</td>
-                <td style={{ padding: '10px' }}>{activo.categoria}</td>
-                <td style={{ padding: '10px' }}>{activo.responsable}</td>
-                <td style={{ padding: '10px' }}>
-                  <Badge estado={activo.estado} />
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-export function ActivosTable({ activos = ACTIVOS_INICIALES }) {
-  const columnas = ['Código', 'Nombre', 'Categoría', 'Responsable', 'Estado'];
+/**
+ * Tabla del inventario de activos.
+ *
+ * Contrato con ActivosPage:
+ *   activos  array de activos ya filtrados
+ *   onView   abre el detalle
+ *   onEdit   abre la edición
+ *   onDelete abre la confirmación de eliminación
+ */
+export default function ActivosTable({
+  activos = [],
+  onView,
+  onEdit,
+  onDelete,
+}) {
+  const columnas = [
+    {
+      clave: 'codigo',
+      titulo: 'Código',
+      render: (activo) => (
+        <div className="cell-stack">
+          <strong>{activo.codigo}</strong>
+          <span style={{ whiteSpace: 'nowrap' }}>
+            {activo.codigoQr || 'Sin código QR'}
+          </span>
+        </div>
+      ),
+    },
+    {
+      clave: 'activo',
+      titulo: 'Activo',
+      render: (activo) => (
+        <div className="cell-stack">
+          <strong>{activo.nombre}</strong>
+          <span>
+            {[activo.marca, activo.modelo].filter(Boolean).join(' ') || '—'}
+          </span>
+          {activo.ubicacion ? <span>{activo.ubicacion}</span> : null}
+        </div>
+      ),
+    },
+    {
+      clave: 'categoria',
+      titulo: 'Categoría',
+      render: (activo) => activo.categoria || '—',
+    },
+    {
+      clave: 'responsable',
+      titulo: 'Responsable',
+      render: (activo) =>
+        activo.responsable || <span className="muted">Sin asignar</span>,
+    },
+    {
+      clave: 'estado',
+      titulo: 'Estado',
+      render: (activo) => (
+        <Badge tone={tonoEstado(activo.estado)}>{activo.estado}</Badge>
+      ),
+    },
+    {
+      clave: 'acciones',
+      titulo: 'Acciones',
+      render: (activo) => (
+        <div className="actions">
+          <Button
+            size="sm"
+            variant="ghost"
+            icon={<Icon name="eye" size={14} />}
+            onClick={() => onView?.(activo)}
+          >
+            Ver
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            icon={<Icon name="edit" size={14} />}
+            onClick={() => onEdit?.(activo)}
+          >
+            Editar
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            icon={<Icon name="trash" size={14} />}
+            onClick={() => onDelete?.(activo)}
+          >
+            Eliminar
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div
-      className="card"
-      style={{
-        backgroundColor: '#ffffff',
-        padding: '20px',
-        borderRadius: '8px',
-        border: '1px solid #dee2e6'
-      }}
-    >
-      <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#006699' }}>
-        Listado de Activos
-      </h3>
-      <Table columnas={columnas} datos={activos} />
-    </div>
+    <Table
+      columnas={columnas}
+      datos={activos}
+      emptyTitle="Sin activos"
+      emptyMessage="No hay activos para mostrar."
+    />
   );
 }
-
-export default ActivosTable;

@@ -18,6 +18,7 @@ export default function PrestamosPage() {
   const { prestamos, activos, addPrestamo, loading } = useSiga();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const activoInicial = searchParams.get('activo') ?? '';
   const [estado, setEstado] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [modalAbierto, setModalAbierto] = useState(Boolean(searchParams.get('activo')));
@@ -216,6 +217,7 @@ export default function PrestamosPage() {
       >
         <PrestamoForm
           activos={activos}
+          activoInicial={activoInicial}
           onSubmit={handleCreate}
           onCancel={() => setModalAbierto(false)}
         />
